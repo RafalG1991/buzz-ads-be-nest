@@ -22,3 +22,11 @@ export interface User {
   status: Status;
   activationToken?: string;
 }
+
+export interface AuthUser {
+  ok: true;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: Role;
+}
