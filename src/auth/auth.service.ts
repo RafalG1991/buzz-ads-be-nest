@@ -45,13 +45,13 @@ export class AuthService {
         return res.json({
           ok: false,
           message:
-            'Twoje konto jest nieaktywne! Kliknij w link wysłany do Ciebie w wiadomości e-mail aby aktywować konto!',
+            'Your account is inactive! Check your email for an activation link!',
         });
       }
       if (!user || !(await bcrypt.compare(req.password, user.password))) {
         return res.json({
           ok: false,
-          message: 'Nieprawidłowy email lub hasło!',
+          message: 'Invalid email or password!',
         });
       }
 
@@ -112,7 +112,7 @@ export class AuthService {
       ) {
         return {
           ok: false,
-          message: 'Aktywacja nieudana! Nieprawidłowe dane!',
+          message: 'Activation failed! Provided data is not valid!',
         };
       }
       userToActivate.activationToken = null;
@@ -121,12 +121,12 @@ export class AuthService {
       await userToActivate.save();
       return {
         ok: true,
-        message: 'Hasło ustawione! Konto zostało aktywowane!',
+        message: 'New password set! Account has been successfully activated!',
       };
     } catch (e) {
       return {
         ok: false,
-        message: 'Coś poszło nie tak! Spróbuj ponownie później!',
+        message: 'Something went wrong! Please try again later!',
       };
     }
   }
