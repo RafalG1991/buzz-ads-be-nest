@@ -78,7 +78,7 @@ export class AuthService {
         domain: 'localhost',
         httpOnly: true,
       });
-      return res.json({ ok: true, message: 'Wylogowano!' });
+      return res.json({ ok: true, message: 'Logged out successfully!' });
     } catch (e) {
       return res.json({ error: e.message });
     }
@@ -94,7 +94,7 @@ export class AuthService {
     } as AuthUser);
   }
 
-  async activateAccountAndSetPassword(
+  async activateAccountAndUpdateData(
     userId: string,
     activationToken: string,
     newPassword: string,
@@ -123,6 +123,33 @@ export class AuthService {
         ok: true,
         message: 'New password set! Account has been successfully activated!',
       };
+    } catch (e) {
+      return {
+        ok: false,
+        message: 'Something went wrong! Please try again later!',
+      };
+    }
+  }
+
+  async signup(req: AuthLoginDto) {
+    try {
+      if (await User.findOneBy({
+        email: req.email,
+      })) {
+        return {
+          ok: false,
+          message: 'Email already in use! Please try again later!',
+        };
+      } else {
+        const user = new User();
+        user.email = req.email;
+        user.password = await bcrypt.hash(req.password, 10);
+        await user.save();
+        return {
+          ok: true,
+          message: 'Account has been created! Check your email for activation link!'
+        }
+      }
     } catch (e) {
       return {
         ok: false,
