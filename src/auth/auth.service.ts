@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import { AuthLoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
@@ -7,9 +7,16 @@ import { sign } from 'jsonwebtoken';
 import { JwtPayload } from './jwt.strategy';
 import { User } from '../user/entities/user.entity';
 import { AuthUser, Status } from '../../types';
+import {MailService} from "../mail/mail.service";
+import {registrationMailTemplate} from "../templates/email/registration-mail";
 
 @Injectable()
 export class AuthService {
+  constructor (
+    @Inject(MailService)
+    private mailService: MailService,
+  ) {}
+
   private createToken(currentTokenId: string): {
     accessToken: string;
     expiresIn: number;
@@ -41,17 +48,17 @@ export class AuthService {
       const user = await User.findOneBy({
         email: req.email,
       });
+      if (!user || !(await bcrypt.compare(req.password, user.password))) {
+        return res.json({
+          ok: false,
+          message: 'Invalid email or password!',
+        });
+      }
       if (user && user.status === Status.INACTIVE) {
         return res.json({
           ok: false,
           message:
             'Your account is inactive! Check your email for an activation link!',
-        });
-      }
-      if (!user || !(await bcrypt.compare(req.password, user.password))) {
-        return res.json({
-          ok: false,
-          message: 'Invalid email or password!',
         });
       }
 
@@ -141,9 +148,24 @@ export class AuthService {
           message: 'Email already in use! Please try again later!',
         };
       } else {
-        const user = new User();
-        user.email = req.email;
-        user.password = await bcrypt.hash(req.password, 10);
+        const newUser = new User();
+        newUser.email = req.email;
+        newUser.password = await bcrypt.hash(req.password, 10);
+        await newUser.save();
+        const user = await User.findOne({ where: { email: newUser.email } });
+        const payload: JwtPayload = { id: user.id };
+        const expiresIn =
+          60 * 60 * 24 * Number(process.env.REGISTRATION_LINK_EXP_TIME_IN_DAYS);
+        const accessToken = sign(payload, process.env.JWT_SECRET, {
+          expiresIn,
+        });
+        const url = `register/${user.id}/${accessToken}`;
+        await this.mailService.sendMail(
+          user.email,
+          'BUZZ ADS account activation',
+          registrationMailTemplate(url),
+        );
+        user.activationToken = accessToken;
         await user.save();
         return {
           ok: true,
