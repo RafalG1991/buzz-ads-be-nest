@@ -24,6 +24,11 @@ export class AuthController {
     return this.authService.login(req, res);
   }
 
+  @Post('/signup')
+  async signup(@Body() req: AuthLoginDto) {
+    return this.authService.signup(req);
+  }
+
   @Get('/logout')
   @UseGuards(AuthGuard('jwt'))
   async logout(@UserObj() user: User, @Res() res: Response) {
@@ -42,7 +47,7 @@ export class AuthController {
     @Param('activationToken') activationToken: string,
     @Body() { newPassword }: { newPassword: string },
   ) {
-    return this.authService.activateAccountAndSetPassword(
+    return this.authService.activateAccountAndUpdateData(
       userId,
       activationToken,
       newPassword,
