@@ -67,4 +67,12 @@ export class Ad extends BaseEntity {
     nullable: false,
   })
   price: number;
+
+  @Column({
+    type: 'date',
+    nullable: false,
+  })
+  validTo: Date;
+
+
 }
