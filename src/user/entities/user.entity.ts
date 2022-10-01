@@ -1,5 +1,6 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Role, Status} from "../../../types";
+import {Ad} from "../../ad/entities/ad.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -69,4 +70,6 @@ export class User extends BaseEntity {
   })
   activationToken: string | null;
 
+  @OneToMany(() => Ad, ad => ad.user)
+  ads: Ad[];
 }

@@ -1,4 +1,5 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {User} from "../../user/entities/user.entity";
 
 @Entity()
 export class Ad extends BaseEntity {
@@ -21,6 +22,7 @@ export class Ad extends BaseEntity {
 
   @Column({
     type: 'boolean',
+    default: false,
     nullable: false,
   })
   isPublic: boolean;
@@ -74,5 +76,6 @@ export class Ad extends BaseEntity {
   })
   validTo: Date;
 
-
+  @ManyToOne(() => User, user => user.ads)
+  user: User;
 }
