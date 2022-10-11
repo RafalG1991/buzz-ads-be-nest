@@ -1,6 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import {UserObj} from "../decorators/user-obj.decorator";
+import {User} from "./entities/user.entity";
 
 @Controller('user')
 export class UserController {
@@ -16,9 +19,10 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/update')
+  update(@UserObj() user: User, @Body() updateUserData: UpdateUserDto) {
+    return this.userService.update(user, updateUserData);
   }
 
   @Delete(':id')
