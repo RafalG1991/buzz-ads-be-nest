@@ -10,7 +10,7 @@ export enum Status {
   BANNED = 'BANNED',
 }
 
-export interface User {
+export interface UserType {
   id: string;
   email: string;
   password: string;

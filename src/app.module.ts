@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import dbConfig from './config/db.config';
+import { AdModule } from './ad/ad.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import dbConfig from './config/db.config';
     UserModule,
     AuthModule,
     MailModule,
+    AdModule,
   ],
   controllers: [AppController],
   providers: [AppService],
