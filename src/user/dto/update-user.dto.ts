@@ -29,3 +29,11 @@ export class UpdateUserDto {
   })
   lastName: string;
 }
+
+export class PasswordDto {
+  @IsString()
+  @MinLength(8, {
+    message: 'Password should have at least 8 characters',
+  })
+  password: string;
+}
