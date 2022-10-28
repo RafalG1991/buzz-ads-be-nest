@@ -1,16 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {PasswordDto, UpdateUserDto} from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import {UserObj} from "../decorators/user-obj.decorator";
+import {User} from "./entities/user.entity";
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
 
   @Get()
   findAll() {
@@ -22,9 +19,23 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/status')
+  setStatus(@UserObj() user: User) {
+    return this.userService.setStatus(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/password')
+  changePassword(@UserObj() user: User, @Body() body: PasswordDto) {
+    return this.userService.changePassword(user, body.password);
+  }
+
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/update')
+  update(@UserObj() user: User, @Body() updateUserData: UpdateUserDto) {
+    return this.userService.update(user, updateUserData);
   }
 
   @Delete(':id')

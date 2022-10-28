@@ -11,5 +11,8 @@ export class AuthLoginDto {
   email: string;
 
   @IsString()
+  @MinLength(8, {
+    message: 'Password should have at least 8 characters',
+  })
   password: string;
 }
