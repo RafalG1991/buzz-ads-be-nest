@@ -20,6 +20,12 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Patch('/status')
+  setStatus(@UserObj() user: User) {
+    return this.userService.setStatus(user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/password')
   changePassword(@UserObj() user: User, @Body() body: PasswordDto) {
     return this.userService.changePassword(user, body.password);

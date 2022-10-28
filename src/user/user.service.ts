@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {User} from "./entities/user.entity";
+import {Status} from "../../types";
 
 @Injectable()
 export class UserService {
@@ -46,7 +47,7 @@ export class UserService {
 
   async changePassword(user: User, password: string) {
     try {
-      let userToUpdate = await User.findOne({
+      const userToUpdate = await User.findOne({
         where: {
           id: user.id,
         }
@@ -66,7 +67,42 @@ export class UserService {
     } catch (e) {
       return {
         ok: false,
-        message: 'Something went wrong! Password has not been updated! Please try again!'
+        message: 'Something went wrong! Password has not been updated! Please try again!',
+      }
+    }
+  }
+
+  async setStatus(user: User) {
+    try {
+      const userToUpdateStatus = await User.findOne({
+        where: {
+          id: user.id,
+        }
+      });
+      if (!userToUpdateStatus) {
+        return {
+          ok: false,
+          message: 'User not found!',
+        }
+      }
+      if (user.status === Status.ACTIVE || user.status === Status.HOLIDAY) {
+        userToUpdateStatus.status = userToUpdateStatus.status === Status.ACTIVE ? Status.HOLIDAY : Status.ACTIVE;
+        await userToUpdateStatus.save();
+        return {
+          ok: true,
+          message: 'Status has been changed!',
+        }
+      } else {
+        return {
+          ok: false,
+          message: 'Status cannot be changed! Your account is banned or inactive! Please contact the support!',
+        }
+      }
+
+    } catch(e) {
+      return {
+        ok: false,
+        message: 'Something went wrong! Status has not been changed! Try again later!',
       }
     }
   }
