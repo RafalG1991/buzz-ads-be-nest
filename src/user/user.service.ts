@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
+import {UpdateUserDto} from './dto/update-user.dto';
 import {User} from "./entities/user.entity";
 
 @Injectable()
@@ -41,5 +42,32 @@ export class UserService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async changePassword(user: User, password: string) {
+    try {
+      let userToUpdate = await User.findOne({
+        where: {
+          id: user.id,
+        }
+      });
+      if (!userToUpdate) {
+        return {
+          ok: false,
+          message: 'User not found!',
+        }
+      }
+      userToUpdate.password = await bcrypt.hash(password, 10);
+      await userToUpdate.save();
+      return {
+        ok: true,
+        message: 'Password has been updated!',
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: 'Something went wrong! Password has not been updated! Please try again!'
+      }
+    }
   }
 }

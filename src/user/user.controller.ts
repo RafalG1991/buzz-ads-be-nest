@@ -1,6 +1,6 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {PasswordDto, UpdateUserDto} from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import {UserObj} from "../decorators/user-obj.decorator";
 import {User} from "./entities/user.entity";
@@ -18,6 +18,13 @@ export class UserController {
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/password')
+  changePassword(@UserObj() user: User, @Body() body: PasswordDto) {
+    return this.userService.changePassword(user, body.password);
+  }
+
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('/update')
